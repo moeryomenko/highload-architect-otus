@@ -25,16 +25,20 @@ func NewRouter(
 	router := chi.NewRouter()
 	auth := NewAuth(cfg)
 
-	router.Use(log.Logger(logger.Named("router")), auth.Auth())
+	router.Use(log.Logger(logger.Named("router")))
 	// filesDir := http.FileServer(http.Dir("./assets"))
 	// router.Handle("/swagger/*", http.StripPrefix("/swagger", filesDir))
 
 	return &http.Server{
-		Handler: HandlerFromMuxWithBaseURL(&Service{
+		Handler: HandlerWithOptions(&Service{
 			auth:  auth,
 			login: login,
 			users: repo,
-		}, router, cfg.APIBaseURL),
+		}, ChiServerOptions{
+			BaseURL:     cfg.APIBaseURL,
+			BaseRouter:  router,
+			Middlewares: []MiddlewareFunc{auth.Auth()},
+		}),
 		Addr: cfg.Addr(),
 	}
 }

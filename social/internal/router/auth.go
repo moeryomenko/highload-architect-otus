@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -54,31 +55,37 @@ func (s *Auth) Sign(w http.ResponseWriter, userID uuid.UUID) error {
 }
 
 // Auth is middleware that verify auth token and extract user id to request context.
-func (s *Auth) Auth() func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
+func (s *Auth) Auth() func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			if r.Context().Value(BearerAuthScopes) == nil {
-				next.ServeHTTP(w, r)
+				next(w, r)
 				return
 			}
-
-			token := extractHeaderToken(r)
-			if token == "" {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-
-			var payload tokenPayload
-			_, err := jwt.Verify([]byte(token), s.tokenizer, &payload)
+			payload, err := s.verify(r)
 			if err != nil {
-				w.WriteHeader(http.StatusUnauthorized)
+				ErrResponse(w, http.StatusUnauthorized, err)
 				return
 			}
-			r.Header.Add(userIDHeaderKey, payload.UserID.String())
-			next.ServeHTTP(w, r)
+			r.Header.Add(userIDHeaderKey, payload.UserID)
+			next(w, r)
 		}
 		return http.HandlerFunc(fn)
 	}
+}
+
+// verify verifies request and return access token.
+func (s *Auth) verify(r *http.Request) (*tokenPayload, error) {
+	token := extractHeaderToken(r)
+	if token == "" {
+		return nil, errors.New("dont have token")
+	}
+	payload := &tokenPayload{}
+	_, err := jwt.Verify([]byte(token), s.tokenizer, payload)
+	if err != nil {
+		return nil, err
+	}
+	return payload, nil
 }
 
 // genToken generates token payload.
@@ -91,17 +98,21 @@ func (s *Auth) genToken(userID uuid.UUID) *tokenPayload {
 			ExpirationTime: jwt.NumericDate(now.Add(s.expiration)),
 			IssuedAt:       jwt.NumericDate(now),
 		},
-		UserID: userID,
+		UserID: userID.String(),
 	}
 }
 
 type tokenPayload struct {
 	jwt.Payload
-	UserID uuid.UUID `json:"user_id"`
+	UserID string `json:"user_id"`
 }
 
 // extractHeaderToken extracts jwt token from header.
 func extractHeaderToken(r *http.Request) string {
 	value := r.Header.Get(tokenHeader)
-	return strings.TrimLeft(value, "Bearer ")
+	values := strings.Split(value, " ")
+	if len(values) != 2 {
+		return ""
+	}
+	return values[1]
 }
