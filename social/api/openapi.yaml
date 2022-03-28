@@ -1,0 +1,190 @@
+openapi: 3.0.0
+info:
+  title: "Social network service"
+  version: "1.0.0"
+  contact:
+    name: Maxim Eryomenko
+    email: moeryomenko@gmail.com
+servers:
+- url: /api/v1
+paths:
+  /signup:
+    post:
+      security:
+      - {}
+      tags:
+      - auth
+      summary: Signup to service
+      requestBody:
+        description: signup form
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        200:
+          description: Successful login to service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        201:
+          description: Successful signup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        500:
+          description: Internal service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login:
+    post:
+      security:
+      - {}
+      tags:
+      - auth
+      summary: Login to service
+      requestBody:
+        description: signup form
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        200:
+          description: Successful login to service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        400:
+          description: Invalid login credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Internal service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /profile:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+      - profiles
+      summary: Save personal information
+      requestBody:
+        description: User personal information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+        required: true
+      responses:
+        200:
+          description: Successful save personal information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        500:
+          description: Internal service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /profiles:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+      - profiles
+      summary: List of profiles
+      parameters:
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+      - name: page_token
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: List of users in specified range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profiles'
+        400:
+          description: Invalid login credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Internal service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Login:
+      type: object
+      properties:
+        nickname:
+          type: string
+        password:
+          type: string
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+    Profile:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        interests:
+          type: array
+          items:
+            type: string
+        city:
+          type: string
+    Profiles:
+      type: object
+      properties:
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+        next_page_token:
+          type: string
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string

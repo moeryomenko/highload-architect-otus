@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+	id         BINARY(16) NOT NULL,
+	nickname   TEXT       NOT NULL,
+	password   TEXT       NOT NULL,
+	created_at DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
