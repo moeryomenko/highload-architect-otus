@@ -26,8 +26,8 @@ func NewRouter(
 	auth := NewAuth(cfg)
 
 	router.Use(log.Logger(logger.Named("router")))
-	// filesDir := http.FileServer(http.Dir("./assets"))
-	// router.Handle("/swagger/*", http.StripPrefix("/swagger", filesDir))
+	filesDir := http.FileServer(http.Dir(cfg.AssetsDir))
+	router.Handle("/*", filesDir)
 
 	return &http.Server{
 		Handler: HandlerWithOptions(&Service{
