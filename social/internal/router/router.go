@@ -37,8 +37,18 @@ func NewRouter(
 		}, ChiServerOptions{
 			BaseURL:     cfg.APIBaseURL,
 			BaseRouter:  router,
-			Middlewares: []MiddlewareFunc{auth.Auth()},
+			Middlewares: []MiddlewareFunc{auth.Auth(), Json()},
 		}),
 		Addr: cfg.Addr(),
+	}
+}
+
+func Json() func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "application/json")
+			next(w, r)
+		}
+		return http.HandlerFunc(fn)
 	}
 }

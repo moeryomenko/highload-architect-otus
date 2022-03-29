@@ -57,7 +57,6 @@ RUN --mount=type=cache,target=/app/node_modules \
 COPY frontend .
 
 RUN --mount=type=cache,target=/app/node_modules \
-    --mount=type=cache,target=/app/public \
     npm run build
 
 FROM scratch as final
