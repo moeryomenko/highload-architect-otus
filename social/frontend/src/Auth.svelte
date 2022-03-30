@@ -11,7 +11,6 @@
   }
 
   function auth(path, nickname, password) {
-    console.log('hello world');
     fetch('/api/v1/' + path, {
       method: 'POST',
       headers: {
@@ -50,10 +49,10 @@
                 />
               </div>
             </div>
-            <button type="button" class="button is-block is-info is-large is-fullwidth" on:click={login(nickname, password)}>
+            <button type="button" class="button is-block is-info is-large is-fullwidth mb-2" on:click={login(nickname, password)}>
               Login <i class="fa fa-sign-in" aria-hidden="true"></i>
             </button>
-            <button type="button" class="button is-block is-info is-large is-fullwidth" on:click={signup(nickname, password)}>
+            <button type="button" class="button is-block is-info is-large is-fullwidth mb-2" on:click={signup(nickname, password)}>
               Signup <i class="fa fa-sign-in" aria-hidden="true"></i>
             </button>
           </form>
