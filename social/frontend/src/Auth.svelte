@@ -1,13 +1,17 @@
 <script>
+  import { state } from './stores.js';
+
   let nickname = "";
   let password = "";
 
   function login(nickname, password) {
     auth('login', nickname, password);
+    // TODO: add transfer state to list of profiles.
   }
 
   function signup(nickname, password) {
     auth('signup', nickname, password);
+    state.update(_ => "submit");
   }
 
   function auth(path, nickname, password) {

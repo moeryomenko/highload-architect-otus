@@ -1,14 +1,19 @@
 <script>
+  import { state } from './stores.js'
   import Auth from './Auth.svelte'
   import Profile from './Profile.svelte'
 
-  let state = 'auth';
+  let pageState;
+
+  state.subscribe(value => {
+    pageState = value;
+  });
 </script>
 
-{#if state === 'auth'}
+{#if pageState === 'auth'}
   <Auth/>
-{:else if state === 'submit'}
+{:else if pageState === 'submit'}
   <Profile/>
-{:else if state === 'list' }
+{:else if pageState === 'list' }
   <div></div>
 {/if}
