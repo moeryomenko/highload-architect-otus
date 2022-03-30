@@ -18,14 +18,17 @@ const (
 	nextPage = `WHERE created_at < ?`
 )
 
+// Users incapsulates data access layer for user profiles.
 type Users struct {
 	conn *sql.DB
 }
 
+// NewUsers returns new instance of user repository.
 func NewUsers(conn *sql.DB) *Users {
 	return &Users{conn: conn}
 }
 
+// Save saves user profile to repository.
 func (r *Users) Save(ctx context.Context, user *domain.User) error {
 	return transaction(ctx, r.conn, func(ctx context.Context, tx *sql.Tx) (err error) {
 		_, err = tx.ExecContext(
@@ -40,6 +43,7 @@ func (r *Users) Save(ctx context.Context, user *domain.User) error {
 	})
 }
 
+// List returns list of users and token for future iteration through profiles.
 func (r *Users) List(ctx context.Context, opts ...PageOption) ([]domain.User, string, error) {
 	queryBuilder := &pageQuery{pageSize: 10}
 	for _, opt := range opts {
@@ -83,18 +87,21 @@ func (r *Users) List(ctx context.Context, opts ...PageOption) ([]domain.User, st
 	}
 }
 
+// WithPageSize sets size of page for list.
 func WithPageSize(size int) PageOption {
 	return func(pq *pageQuery) {
 		pq.pageSize = size
 	}
 }
 
+// WithPageAt sets from what time take profiles for List.
 func WithPageAt(at time.Time) PageOption {
 	return func(pq *pageQuery) {
 		pq.at = &at
 	}
 }
 
+// DecodeToken decodes token to time for WithPageAt.
 func DecodeToken(token string) (time.Time, error) {
 	dst, err := b64.StdEncoding.DecodeString(token)
 	if err != nil {
@@ -104,11 +111,13 @@ func DecodeToken(token string) (time.Time, error) {
 	return time.Parse(string(dst), "2006-01-02 15:04:05")
 }
 
+// pageQuery is query builder for iterating in List.
 type pageQuery struct {
 	pageSize int
 	at       *time.Time
 }
 
+// getQuery returns query specified by options.
 func (pq *pageQuery) getQuery() (string, []any) {
 	if pq.at == nil {
 		return fmt.Sprintf(paginatedListQuery, ""), []any{pq.pageSize}

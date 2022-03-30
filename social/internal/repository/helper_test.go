@@ -24,7 +24,7 @@ func Test_uuid(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		return binaryToUUID(uuidToBinary(id)) == id
+		return binaryToUUID(uuidToBinary(id)).String() == id.String()
 	}, genTestcase()))
 
 	properties.TestingRun(t)

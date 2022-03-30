@@ -15,14 +15,17 @@ const (
 
 var ErrNotFound = errors.New("not found")
 
+// Login incapsulates login/signup repository logic.
 type Login struct {
 	conn *sql.DB
 }
 
+// NewLogin returns new instance of login repository.
 func NewLogin(conn *sql.DB) *Login {
 	return &Login{conn: conn}
 }
 
+// Save saves signup credentials for login.
 func (r *Login) Save(ctx context.Context, login *domain.Login) error {
 	return transaction(ctx, r.conn, func(ctx context.Context, tx *sql.Tx) error {
 		_, err := tx.ExecContext(ctx, insertLoginQuery, uuidToBinary(login.UserID), login.Nickname, login.Password)
@@ -30,6 +33,7 @@ func (r *Login) Save(ctx context.Context, login *domain.Login) error {
 	})
 }
 
+// Get returns login credentials for check login.
 func (r *Login) Get(ctx context.Context, nickname string) (*domain.Login, error) {
 	login := &domain.Login{Nickname: nickname}
 
