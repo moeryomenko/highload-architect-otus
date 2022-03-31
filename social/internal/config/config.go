@@ -72,9 +72,10 @@ type PoolConfig struct {
 
 // HealthConfig represents health controller configuration.
 type HealthConfig struct {
-	Port           int           `envconfig:"PORT" default:"6060"`
-	HealthEndpoint string        `envconfig:"ENDPOINT" default:"/livez"`
-	Period         time.Duration `envconfig:"PERIOD" default:"3s"`
+	Port          int           `envconfig:"PORT" default:"6060"`
+	LiveEndpoint  string        `envconfig:"LIVINESS_ENDPOINT" default:"/livez"`
+	ReadyEndpoint string        `envconfig:"READINESS_ENDPOINT" default:"/ready"`
+	Period        time.Duration `envconfig:"PERIOD" default:"3s"`
 }
 
 // LogConfig represents service logging configuration.

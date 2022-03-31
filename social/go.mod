@@ -10,7 +10,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/leanovate/gopter v0.2.9
-	github.com/moeryomenko/healing v0.2.1
+	github.com/moeryomenko/healing v0.3.0
 	github.com/moeryomenko/squad v1.2.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/getkin/kin-openapi v0.87.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
