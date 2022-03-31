@@ -2,6 +2,7 @@
   import { state } from './stores.js'
   import Auth from './Auth.svelte'
   import Profile from './Profile.svelte'
+  import Profiles from './Profiles.svelte'
 
   let pageState;
 
@@ -14,6 +15,6 @@
   <Auth/>
 {:else if pageState === 'submit'}
   <Profile/>
-{:else if pageState === 'list' }
-  <div></div>
+{:else if pageState === 'profiles' }
+  <Profiles/>
 {/if}

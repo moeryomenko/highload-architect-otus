@@ -6,7 +6,7 @@
 
   function login(nickname, password) {
     auth('login', nickname, password);
-    // TODO: add transfer state to list of profiles.
+    state.update(_ => "profiles");
   }
 
   function signup(nickname, password) {

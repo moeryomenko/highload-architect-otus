@@ -1,4 +1,6 @@
 <script>
+  import { state } from './stores.js';
+
   let profile = {
     first_name: "",
     last_name:  "",
@@ -41,10 +43,9 @@
         'Authorization': `Bearer ${sessionStorage.getItem('access_token')}`,
        },
       body: JSON.stringify(profile),
-    }).then(async response => {
-      const object = await response.json();
-      console.log(JSON.stringify(object));
     });
+
+    state.update(_ => 'profiles');
   }
 </script>
 
