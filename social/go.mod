@@ -3,6 +3,7 @@ module github.com/moeryomenko/highload-architect-otus/social
 go 1.18
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.15.0
 	github.com/deepmap/oapi-codegen v1.9.1
 	github.com/gbrlsnchs/jwt/v3 v3.0.1
 	github.com/go-chi/chi/v5 v5.0.7

@@ -58,6 +58,10 @@ type PutProfileJSONBody Profile
 type GetProfilesParams struct {
 	PageSize  *int    `json:"page_size,omitempty"`
 	PageToken *string `json:"page_token,omitempty"`
+	Search    *struct {
+		FirstName *string `json:"first_name,omitempty"`
+		LastName  *string `json:"last_name,omitempty"`
+	} `json:"search,omitempty"`
 }
 
 // PostSignupJSONBody defines parameters for PostSignup.
@@ -159,6 +163,17 @@ func (siw *ServerInterfaceWrapper) GetProfiles(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, false, "page_token", r.URL.Query(), &params.PageToken)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page_token", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "search" -------------
+	if paramValue := r.URL.Query().Get("search"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "search", r.URL.Query(), &params.Search)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "search", Err: err})
 		return
 	}
 

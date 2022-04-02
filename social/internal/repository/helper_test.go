@@ -10,7 +10,7 @@ import (
 	"github.com/leanovate/gopter/prop"
 )
 
-func genTestcase() gopter.Gen {
+func genUUID() gopter.Gen {
 	return gen.SliceOfN(20, gen.Rune()).Map(func(r []rune) string { return uuid.NewV4().String() })
 }
 
@@ -25,7 +25,7 @@ func Test_uuid(t *testing.T) {
 		}
 
 		return binaryToUUID(uuidToBinary(id)).String() == id.String()
-	}, genTestcase()))
+	}, genUUID()))
 
 	properties.TestingRun(t)
 }

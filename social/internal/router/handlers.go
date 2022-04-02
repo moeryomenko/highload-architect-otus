@@ -109,6 +109,15 @@ func (s *Service) GetProfiles(w http.ResponseWriter, r *http.Request, params Get
 		pageOpts = append(pageOpts, repository.WithPageAt(token))
 	}
 
+	if params.Search != nil {
+		if params.Search.FirstName != nil {
+			pageOpts = append(pageOpts, repository.WithSearchByFirstName(*params.Search.FirstName))
+		}
+		if params.Search.LastName != nil {
+			pageOpts = append(pageOpts, repository.WithSearchByLastName(*params.Search.LastName))
+		}
+	}
+
 	page, nextToken, err := s.users.List(r.Context(), pageOpts...)
 	if err != nil {
 		ErrResponse(w, http.StatusBadRequest, err)
