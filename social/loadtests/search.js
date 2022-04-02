@@ -4,17 +4,35 @@ import http from 'k6/http';
 export const options = {
 	discardResponseBodies: true,
 	scenarios: {
-		constants: {
+		first_page: {
 			executor: 'constant-vus',
+			exec: 'firstPage',
 			vus: 1000,
 			duration: '30s',
+			gracefulStop: '10s',
+		},
+		second_page: {
+			executor: 'constant-vus',
+			exec: 'secondPage',
+			vus: 1000,
+			duration: '30s',
+			gracefulStop: '10s',
+			startTime: '40s',
 		},
 	},
 };
 
-export default function () {
+export function firstPage () {
 	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}`;
+	getPage(url);
+}
 
+export function secondPage () {
+	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}?page_token=${__ENV.NEXT_PAGE}`;
+	getPage(url);
+}
+
+function getPage(url) {
 	const params = {
 		headers: {
 			'Authorization': `Bearer ${__ENV.TOKEN}`,
