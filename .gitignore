@@ -22,3 +22,4 @@ social/go.work
 
 social/frontend/node_modules/
 social/frontend/public/build/
+social/k6

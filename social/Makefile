@@ -1,3 +1,7 @@
+HOST?=localhost:8080
+ACCESS_TOKEN?=$(shell curl -X POST http://localhost:8080/api/v1/signup -d '{"nickname":"test", "password":"test"}' | jq .access_token)
+NAME?=Max
+
 test:
 	@go test -v ./...
 
@@ -7,6 +11,13 @@ restore:
 tools:
 	@go install -v \
 		github.com/deepmap/oapi-codegen/cmd/oapi-codegen
+
+load-tools:
+	@go install -v go.k6.io/xk6/cmd/xk6@v0.6.1
+	@xk6 build --with github.com/szkiba/xk6-dashboard@latest
+
+load-test:
+	@./k6 run -e HOSTNAME=${HOST} -e FIRST_NAME=${NAME} -e TOKEN=${ACCESS_TOKEN} ./loadtests/search.js
 
 gen-api:
 	@oapi-codegen --package router \
