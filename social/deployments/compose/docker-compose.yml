@@ -13,7 +13,7 @@ services:
       - local
     healthcheck:
       test: "mysqladmin ping -h localhost"
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 10
 

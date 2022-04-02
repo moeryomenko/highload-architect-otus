@@ -2,11 +2,14 @@ import { check } from 'k6';
 import http from 'k6/http';
 
 export const options = {
-	stages: [
-		{duration: '10s', vus: 20,   target: 20}, // warmup.
-		{duration: '5m',  vus: 100,  target: 100},
-		{duration: '5m',  vus: 1000, target: 1000},
-	],
+	discardResponseBodies: true,
+	scenarios: {
+		constants: {
+			executor: 'constant-vus',
+			vus: 1000,
+			duration: '30s',
+		},
+	},
 };
 
 export default function () {
