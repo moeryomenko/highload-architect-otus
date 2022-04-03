@@ -17,6 +17,19 @@ services:
       timeout: 5s
       retries: 10
 
+  migrations:
+    container_name: migrations
+    image: migrate/migrate
+    volumes:
+      - ../../migrations:/migrations
+    command:
+      [ "-path", "/migrations", "-database", "mysql://social:test@tcp(mysql:3306)/social", "up" ]
+    networks:
+      - local
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   social:
     container_name: social
     restart: always
@@ -30,8 +43,8 @@ services:
     networks:
       - local
     depends_on:
-      mysql:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
 
 networks:
   local:
