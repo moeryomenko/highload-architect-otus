@@ -9,26 +9,27 @@ export const options = {
 			exec: 'firstPage',
 			vus: 1000,
 			duration: '30s',
-			gracefulStop: '10s',
+			gracefulStop: '0s',
 		},
 		second_page: {
 			executor: 'constant-vus',
 			exec: 'secondPage',
 			vus: 1000,
 			duration: '30s',
-			gracefulStop: '10s',
-			startTime: '40s',
+			gracefulStop: '30s',
+			startTime: '30s',
 		},
 	},
 };
 
 export function firstPage () {
-	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}`;
+	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}&last_name=${__ENV.LAST_NAME}`;
 	getPage(url);
 }
 
 export function secondPage () {
-	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}?page_token=${__ENV.NEXT_PAGE}`;
+	// TODO: take token from envs.
+	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}&page_token=MjAyMi0wNC0wMSAyMDoyNzoyOSArMDAwMCBVVEM%3D`
 	getPage(url);
 }
 

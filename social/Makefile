@@ -1,7 +1,7 @@
 HOST?=localhost:8080
 ACCESS_TOKEN?=$(shell curl -X POST http://${HOST}/api/v1/signup -d '{"nickname":"test", "password":"test"}' | jq .access_token)
-NAME?=Max
-NEXT=$(shell curl http://${HOST}/api/v1/profiles?first_name=${NAME} -H 'Authorization: Bearer ${ACCESS_TOKEN}' | jq .page_next_token )
+NAME?=Dangelo
+LAST?=Cummings
 
 test:
 	@go test -v ./...
@@ -18,7 +18,7 @@ load-tools:
 	@xk6 build --with github.com/szkiba/xk6-dashboard@latest
 
 load-test:
-	@./k6 run -e HOSTNAME=${HOST} -e FIRST_NAME=${NAME} -e TOKEN=${ACCESS_TOKEN} -e NEXT_TOKEN=${NEXT} ./loadtests/search.js
+	@./k6 run -e HOSTNAME=${HOST} -e FIRST_NAME=${NAME} -e LAST_NAME=${LAST} -e TOKEN=${ACCESS_TOKEN} -e NEXT_TOKEN=${NEXT} --out dashboard ./loadtests/search.js
 
 gen-api:
 	@oapi-codegen --package router \
