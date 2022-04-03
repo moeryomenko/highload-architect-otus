@@ -53,8 +53,6 @@ type DBConfig struct {
 	Password     string `encconfig:"PASSWORD"`
 	PasswordSalt string `envconfig:"PASSWORD_SALT"`
 
-	MigrationDir string `envconfig:"MIGRATION_DIR" default:"file:///migrations"`
-
 	Pool *PoolConfig `envconfig:"POOL"`
 }
 

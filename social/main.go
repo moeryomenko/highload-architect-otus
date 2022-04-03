@@ -13,7 +13,6 @@ import (
 
 	"github.com/moeryomenko/highload-architect-otus/social/internal/config"
 	log "github.com/moeryomenko/highload-architect-otus/social/internal/logger"
-	"github.com/moeryomenko/highload-architect-otus/social/internal/migrations"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/repository"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/router"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/services"
@@ -38,10 +37,6 @@ func main() {
 	defer connPool.Close()
 
 	poolProber := gosql.New(context.Background(), connPool)
-
-	if err = migrations.Up(cfg, connPool); err != nil {
-		logger.With(zap.Error(err)).Fatal("could not up database migrations")
-	}
 
 	login := services.NewLogin(cfg, repository.NewLogin(connPool))
 
