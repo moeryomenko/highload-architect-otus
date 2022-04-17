@@ -37,3 +37,9 @@
 <p align="center"><img src="imgs/1000conns_w_idx.png" /></p>
 
 <p align="center"><img src="imgs/1000conns_w_idx_graphs.png" /></p>
+
+### 1000 concurrent connection with new optimized mysql driver
+
+<p align="center"><img src="imgs/1000conns_w_idx_new.png" /></p>
+
+<p align="center"><img src="imgs/1000conns_w_idx_new_graphs.png" /></p>

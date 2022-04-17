@@ -29,7 +29,7 @@ export function firstPage () {
 
 export function secondPage () {
 	// TODO: take token from envs.
-	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}&page_token=MjAyMi0wNC0wMSAyMDoyNzoyOSArMDAwMCBVVEM%3D`
+	const url = `http://${__ENV.HOSTNAME}/api/v1/profiles?first_name=${__ENV.FIRST_NAME}&page_token=MjAyMi0wNC0wMSAyMDowODowNw%3D%3D`
 	getPage(url);
 }
 

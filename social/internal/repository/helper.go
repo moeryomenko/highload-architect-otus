@@ -2,29 +2,40 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"strings"
 
+	"github.com/go-mysql-org/go-mysql/client"
 	uuid "github.com/satori/go.uuid"
 )
 
-func transaction(ctx context.Context, conn *sql.DB, trx func(context.Context, *sql.Tx) error) (err error) {
-	tx, err := conn.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
-	if err != nil {
-		return err
-	}
-	defer func() {
+func transaction(ctx context.Context, pool *client.Pool, tx func(conn *client.Conn) error) (err error) {
+	return query(ctx, pool, func(conn *client.Conn) (err error) {
+		err = conn.Begin()
 		if err != nil {
-			_ = tx.Rollback()
+			return err
 		}
-	}()
+		defer func() {
+			if err != nil {
+				_ = conn.Rollback()
+			}
+		}()
 
-	err = trx(ctx, tx)
+		err = tx(conn)
+		if err != nil {
+			return err
+		}
+		return conn.Commit()
+	})
+}
+
+func query(ctx context.Context, pool *client.Pool, fn func(conn *client.Conn) error) error {
+	conn, err := pool.GetConn(ctx)
 	if err != nil {
 		return err
 	}
+	defer pool.PutConn(conn)
 
-	return tx.Commit()
+	return fn(conn)
 }
 
 func uuidToBinary(id uuid.UUID) string {

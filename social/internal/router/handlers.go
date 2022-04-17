@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
+	"go.uber.org/zap"
 
 	"github.com/moeryomenko/highload-architect-otus/social/internal/domain"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/repository"
@@ -12,9 +13,10 @@ import (
 )
 
 type Service struct {
-	auth  *Auth
-	login *services.Login
-	users *repository.Users
+	logger *zap.Logger
+	auth   *Auth
+	login  *services.Login
+	users  *repository.Users
 }
 
 // PostLogin logins user in service and generate access token.
@@ -120,7 +122,8 @@ func (s *Service) GetProfiles(w http.ResponseWriter, r *http.Request, params Get
 
 	page, nextToken, err := s.users.List(r.Context(), pageOpts...)
 	if err != nil {
-		ErrResponse(w, http.StatusBadRequest, err)
+		s.logger.Error("could not get profiles list", zap.Error(err))
+		ErrResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 	profiles := make([]Profile, 0, len(page))
@@ -130,7 +133,7 @@ func (s *Service) GetProfiles(w http.ResponseWriter, r *http.Request, params Get
 
 	resp, err := json.Marshal(Profiles{Profiles: &profiles, NextPageToken: &nextToken})
 	if err != nil {
-		ErrResponse(w, http.StatusBadRequest, err)
+		ErrResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 	w.Write(resp)

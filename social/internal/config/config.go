@@ -56,16 +56,15 @@ type DBConfig struct {
 	Pool *PoolConfig `envconfig:"POOL"`
 }
 
-// DSN returns database dsn for connect.
-func (cfg *DBConfig) DSN() string {
-	return fmt.Sprintf("%s:%s@(%s:%d)/%s?sql_mode=TRADITIONAL&parseTime=true&tls=false", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
+// Addr return database address for connect.
+func (cfg *DBConfig) Addr() string {
+	return fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 }
 
 // PoolConfig represents databese connection pool configuration.
 type PoolConfig struct {
-	MaxOpenConns    int           `envconfig:"MAX_OPEN_CONNS" default:"20"`
-	MaxIdleConns    int           `envconfig:"MAX_IDLE_CONNS" default:"20"`
-	ConnMaxIdleTime time.Duration `envconfig:"CONN_MAX_IDLE_TIME" default:"2s"`
+	MaxOpenConns int `envconfig:"MAX_OPEN_CONNS" default:"20"`
+	MaxIdleConns int `envconfig:"MAX_IDLE_CONNS" default:"20"`
 }
 
 // HealthConfig represents health controller configuration.

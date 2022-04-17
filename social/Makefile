@@ -1,5 +1,5 @@
 HOST?=localhost:8080
-ACCESS_TOKEN?=$(shell curl -X POST http://${HOST}/api/v1/signup -d '{"nickname":"test", "password":"test"}' | jq .access_token)
+ACCESS_TOKEN?=$(shell curl -X POST http://${HOST}/api/v1/login -d '{"nickname":"test", "password":"test"}' | jq .access_token)
 NAME?=Dangelo
 LAST?=Cummings
 
@@ -8,6 +8,9 @@ test:
 
 restore:
 	@gunzip < dumps/profiles.sql.gz | docker exec -i mysql /usr/bin/mysql -u social -ptest social
+
+test-user:
+	@curl -X POST http://${HOST}/api/v1/signup -d '{"nickname":"test", "password":"test"}'
 
 tools:
 	@go install -v \

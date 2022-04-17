@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	health "github.com/moeryomenko/healing"
-	"github.com/moeryomenko/healing/decorators/gosql"
 	"github.com/moeryomenko/squad"
 	"go.uber.org/zap"
 
@@ -30,24 +29,20 @@ func main() {
 	}
 	defer logger.Sync()
 
-	connPool, err := repository.InitConnPool(cfg)
+	pool, err := repository.InitConnPool(cfg)
 	if err != nil {
 		logger.With(zap.Error(err)).Fatal("could not init database connection pool")
 	}
-	defer connPool.Close()
 
-	poolProber := gosql.New(context.Background(), connPool)
+	login := services.NewLogin(cfg, repository.NewLogin(pool))
 
-	login := services.NewLogin(cfg, repository.NewLogin(connPool))
-
-	server := router.NewRouter(cfg, logger, login, repository.NewUsers(connPool))
+	server := router.NewRouter(cfg, logger, login, repository.NewUsers(pool))
 
 	healthController := health.New(
 		health.WithCheckPeriod(cfg.Health.Period),
 		health.WithHealthzEndpoint(cfg.Health.LiveEndpoint),
 		health.WithReadyEndpoint(cfg.Health.ReadyEndpoint),
 	)
-	healthController.AddReadyChecker(poolProber.CheckReadinessProbe)
 
 	group := squad.NewSquad(context.Background(), squad.WithSignalHandler())
 

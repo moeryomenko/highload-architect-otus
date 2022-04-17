@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
+	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/domain"
 )
 
@@ -17,18 +17,18 @@ var ErrNotFound = errors.New("not found")
 
 // Login incapsulates login/signup repository logic.
 type Login struct {
-	conn *sql.DB
+	pool *client.Pool
 }
 
 // NewLogin returns new instance of login repository.
-func NewLogin(conn *sql.DB) *Login {
-	return &Login{conn: conn}
+func NewLogin(conn *client.Pool) *Login {
+	return &Login{pool: conn}
 }
 
 // Save saves signup credentials for login.
 func (r *Login) Save(ctx context.Context, login *domain.Login) error {
-	return transaction(ctx, r.conn, func(ctx context.Context, tx *sql.Tx) error {
-		_, err := tx.ExecContext(ctx, insertLoginQuery, uuidToBinary(login.UserID), login.Nickname, login.Password)
+	return transaction(ctx, r.pool, func(conn *client.Conn) error {
+		_, err := conn.Execute(insertLoginQuery, uuidToBinary(login.UserID), login.Nickname, login.Password)
 		return err
 	})
 }
@@ -37,20 +37,31 @@ func (r *Login) Save(ctx context.Context, login *domain.Login) error {
 func (r *Login) Get(ctx context.Context, nickname string) (*domain.Login, error) {
 	login := &domain.Login{Nickname: nickname}
 
-	row := r.conn.QueryRowContext(ctx, selectLoginQuery, login.Nickname)
-	err := row.Err()
-	switch err {
-	case nil:
-		var id string
-		err = row.Scan(&id, &login.Password)
+	err := query(ctx, r.pool, func(conn *client.Conn) error {
+		result, err := conn.Execute(selectLoginQuery, login.Nickname)
 		if err != nil {
-			return nil, err
+			return err
+		}
+		defer result.Close()
+
+		if len(result.Values) == 0 {
+			return ErrNotFound
+		}
+
+		id, err := result.GetString(0, 0)
+		if err != nil {
+			return err
 		}
 		login.UserID = binaryToUUID(id)
-		return login, err
-	case sql.ErrNoRows:
-		return nil, ErrNotFound
-	default:
+
+		login.Password, err = result.GetString(0, 1)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
+	return login, nil
 }

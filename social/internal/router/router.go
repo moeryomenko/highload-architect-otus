@@ -31,9 +31,10 @@ func NewRouter(
 
 	return &http.Server{
 		Handler: HandlerWithOptions(&Service{
-			auth:  auth,
-			login: login,
-			users: repo,
+			auth:   auth,
+			login:  login,
+			users:  repo,
+			logger: logger,
 		}, ChiServerOptions{
 			BaseURL:     cfg.APIBaseURL,
 			BaseRouter:  router,

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"reflect"
+	// "reflect"
 	"testing"
 	"time"
 
@@ -26,15 +26,13 @@ func Test_searchQuery(t *testing.T) {
 	properties := gopter.NewProperties(parameters)
 
 	properties.Property("correct map predicates to query", prop.ForAll(func(firstName, lastName string) bool {
-		query, values := searchQuery([]predicate{{"first", firstName}, {"second", lastName}})
-		return assert.Equal(t, " first LIKE ? AND second LIKE ? ", query) &&
-			reflect.DeepEqual([]any{firstName, lastName}, values)
+		query := searchQuery([]predicate{{"first", firstName}, {"second", lastName}})
+		return assert.Equal(t, fmt.Sprintf(" first LIKE '%s' AND second LIKE '%s' ", firstName, lastName), query)
 	}, genFirstName(), genLastName()))
 
 	// corner case.
-	query, values := searchQuery(nil)
+	query := searchQuery(nil)
 	assert.Equal(t, "", query)
-	assert.Empty(t, values)
 
 	properties.TestingRun(t)
 }
@@ -44,14 +42,13 @@ func Test_getQuery(t *testing.T) {
 	properties := gopter.NewProperties(parameters)
 
 	properties.Property("take first page query without search predicates", prop.ForAll(func(pageSize int) bool {
-		query, values := (&pageQuery{pageSize: pageSize}).getQuery()
-		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, ""), query) && reflect.DeepEqual([]any{pageSize}, values)
+		query := (&pageQuery{pageSize: pageSize}).getQuery()
+		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, "", pageSize), query)
 	}, gen.IntRange(10, 20)))
 
 	properties.Property("take next page query without search predicates", prop.ForAll(func(pageSize int, at time.Time) bool {
-		query, values := (&pageQuery{pageSize: pageSize, at: &at}).getQuery()
-		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, " WHERE  created_at < ?  "), query) &&
-			reflect.DeepEqual([]any{at, pageSize}, values)
+		query := (&pageQuery{pageSize: pageSize, at: &at}).getQuery()
+		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, fmt.Sprintf(" WHERE  created_at < '%s'  ", at.Format("2006-01-02 15:04:05")), pageSize), query)
 	}, gen.IntRange(10, 20), gen.Time()))
 
 	properties.Property("take first page query with search predicates", prop.ForAll(func(pageSize int, firstName, lastName string) bool {
@@ -62,9 +59,8 @@ func Test_getQuery(t *testing.T) {
 				{"last", lastName},
 			},
 		}
-		query, values := pageOpts.getQuery()
-		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, " WHERE  first LIKE ? AND last LIKE ?  "), query) &&
-			reflect.DeepEqual([]any{firstName, lastName, pageSize}, values)
+		query := pageOpts.getQuery()
+		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, fmt.Sprintf(" WHERE  first LIKE '%s' AND last LIKE '%s'  ", firstName, lastName), pageSize), query)
 	}, gen.IntRange(10, 20), genFirstName(), genLastName()))
 
 	properties.Property("take next page query with search predicates", prop.ForAll(func(pageSize int, at time.Time, firstName, lastName string) bool {
@@ -76,9 +72,8 @@ func Test_getQuery(t *testing.T) {
 				{"last", lastName},
 			},
 		}
-		query, values := pageOpts.getQuery()
-		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, " WHERE  first LIKE ? AND last LIKE ? AND created_at < ?  "), query) &&
-			reflect.DeepEqual([]any{firstName, lastName, at, pageSize}, values)
+		query := pageOpts.getQuery()
+		return assert.Equal(t, fmt.Sprintf(paginatedListQuery, fmt.Sprintf(" WHERE  first LIKE '%s' AND last LIKE '%s' AND created_at < '%s'  ", firstName, lastName, at.Format("2006-01-02 15:04:05")), pageSize), query)
 	}, gen.IntRange(10, 20), gen.Time(), genFirstName(), genLastName()))
 
 	properties.TestingRun(t)
