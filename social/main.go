@@ -6,7 +6,7 @@ import (
 	stdLog "log"
 	"net/http"
 
-	health "github.com/moeryomenko/healing"
+	"github.com/moeryomenko/healing"
 	"github.com/moeryomenko/squad"
 	"go.uber.org/zap"
 
@@ -29,7 +29,7 @@ func main() {
 	}
 	defer logger.Sync()
 
-	pool, err := repository.InitConnPool(cfg)
+	pool, err := repository.InitConnPool(context.Background(), cfg)
 	if err != nil {
 		logger.With(zap.Error(err)).Fatal("could not init database connection pool")
 	}
@@ -38,13 +38,18 @@ func main() {
 
 	server := router.NewRouter(cfg, logger, login, repository.NewUsers(pool))
 
-	healthController := health.New(
-		health.WithCheckPeriod(cfg.Health.Period),
-		health.WithHealthzEndpoint(cfg.Health.LiveEndpoint),
-		health.WithReadyEndpoint(cfg.Health.ReadyEndpoint),
+	healthController := healing.New(
+		healing.WithCheckPeriod(cfg.Health.Period),
+		healing.WithHealthzEndpoint(cfg.Health.LiveEndpoint),
+		healing.WithReadyEndpoint(cfg.Health.ReadyEndpoint),
 	)
 
-	group := squad.NewSquad(context.Background(), squad.WithSignalHandler())
+	healthController.AddReadyChecker("mysql", pool.CheckReadinessProber)
+
+	group, err := squad.NewSquad(context.Background(), squad.WithSignalHandler())
+	if err != nil {
+		logger.With(zap.Error(err)).Fatal("could not create execution group")
+	}
 
 	group.RunGracefully(func(ctx context.Context) error {
 		return server.ListenAndServe()

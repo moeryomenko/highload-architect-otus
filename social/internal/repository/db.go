@@ -1,24 +1,24 @@
 package repository
 
 import (
-	"github.com/go-mysql-org/go-mysql/client"
+	"context"
+
+	"github.com/moeryomenko/healing/decorators/mysql"
 
 	"github.com/moeryomenko/highload-architect-otus/social/internal/config"
 )
 
 // InitConnPool initialize and configure db connection pool.
-func InitConnPool(cfg *config.Config) (*client.Pool, error) {
-	pool := client.NewPool(
-		noopLog,
-		cfg.Database.Pool.MaxOpenConns/2,
-		cfg.Database.Pool.MaxOpenConns,
-		cfg.Database.Pool.MaxIdleConns,
-		cfg.Database.Addr(),
-		cfg.Database.User,
-		cfg.Database.Password,
-		cfg.Database.Name,
-	)
-	return pool, nil
+func InitConnPool(ctx context.Context, cfg *config.Config) (*mysql.Pool, error) {
+	return mysql.New(ctx, mysql.Config{
+		Host:     cfg.Database.Host,
+		Port:     uint16(cfg.Database.Port),
+		User:     cfg.Database.User,
+		Password: cfg.Database.Password,
+		DBName:   cfg.Database.Name,
+	}, mysql.WithPoolConfig(mysql.PoolConfig{
+		MinAlive: cfg.Database.Pool.MaxOpenConns / 2,
+		MaxAlive: cfg.Database.Pool.MaxOpenConns,
+		MaxIdle:  cfg.Database.Pool.MaxIdleConns,
+	}))
 }
-
-var noopLog = func(format string, args ...interface{}) {}

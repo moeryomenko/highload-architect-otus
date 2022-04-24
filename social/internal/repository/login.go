@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/go-mysql-org/go-mysql/client"
+	"github.com/moeryomenko/healing/decorators/mysql"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/domain"
 )
 
@@ -17,11 +18,11 @@ var ErrNotFound = errors.New("not found")
 
 // Login incapsulates login/signup repository logic.
 type Login struct {
-	pool *client.Pool
+	pool *mysql.Pool
 }
 
 // NewLogin returns new instance of login repository.
-func NewLogin(conn *client.Pool) *Login {
+func NewLogin(conn *mysql.Pool) *Login {
 	return &Login{pool: conn}
 }
 

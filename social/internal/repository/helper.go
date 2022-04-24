@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	"github.com/go-mysql-org/go-mysql/client"
+	"github.com/moeryomenko/healing/decorators/mysql"
 	uuid "github.com/satori/go.uuid"
 )
 
-func transaction(ctx context.Context, pool *client.Pool, tx func(conn *client.Conn) error) (err error) {
+func transaction(ctx context.Context, pool *mysql.Pool, tx func(conn *client.Conn) error) (err error) {
 	return query(ctx, pool, func(conn *client.Conn) (err error) {
 		err = conn.Begin()
 		if err != nil {
@@ -28,7 +29,7 @@ func transaction(ctx context.Context, pool *client.Pool, tx func(conn *client.Co
 	})
 }
 
-func query(ctx context.Context, pool *client.Pool, fn func(conn *client.Conn) error) error {
+func query(ctx context.Context, pool *mysql.Pool, fn func(conn *client.Conn) error) error {
 	conn, err := pool.GetConn(ctx)
 	if err != nil {
 		return err

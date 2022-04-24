@@ -10,14 +10,15 @@ require (
 	github.com/go-mysql-org/go-mysql v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/leanovate/gopter v0.2.9
-	github.com/moeryomenko/healing v0.3.0
-	github.com/moeryomenko/squad v1.2.0
+	github.com/moeryomenko/healing v1.3.1
+	github.com/moeryomenko/squad v1.3.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	go.uber.org/zap v1.21.0
 )
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/getkin/kin-openapi v0.87.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
@@ -42,7 +43,7 @@ require (
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20211013171255-e13a2654a71e // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

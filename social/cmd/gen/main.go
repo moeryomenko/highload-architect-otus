@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	pool, err := repository.InitConnPool(cfg)
+	pool, err := repository.InitConnPool(context.Background(), cfg)
 	if err != nil {
 		panic(err)
 	}
