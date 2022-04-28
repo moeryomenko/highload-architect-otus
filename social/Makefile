@@ -23,6 +23,9 @@ load-tools:
 load-test:
 	@./k6 run -e HOSTNAME=${HOST} -e FIRST_NAME=${NAME} -e LAST_NAME=${LAST} -e TOKEN=${ACCESS_TOKEN} -e NEXT_TOKEN=${NEXT} --out dashboard ./loadtests/search.js
 
+replication-test:
+	@./k6 run -e HOSTNAME=${HOST} -e FIRST_NAME=${NAME} -e LAST_NAME=${LAST} -e TOKEN=${ACCESS_TOKEN} --out dashboard ./loadtests/replication.js
+
 gen-api:
 	@oapi-codegen --package router \
 		-generate chi-server,types api/openapi.yaml  > internal/router/gen.go
