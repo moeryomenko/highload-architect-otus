@@ -1,21 +1,90 @@
-version: '3.5'
+version: '3.9'
 
 services:
-  mysql:
-    container_name: mysql
-    image: mysql:8.0.28
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci
+  mysql-master:
+    image: mysql:8.0
+    container_name: mysql-master
     env_file: ./.env
-    ports:
-      - 3306:3306
+    cap_add:
+      - all
+    volumes:
+      - ./master/my.cnf:/etc/mysql/my.cnf
+      - ./master/mysql:/docker-entrypoint-initdb.d
+      - ./master/data:/var/lib/mysql-files
     networks:
-      - local
+      local:
+        aliases:
+          - mysql
     healthcheck:
       test: "mysqladmin ping -h localhost"
       interval: 20s
       timeout: 5s
       retries: 10
+
+  mysql-slave1:
+    image: mysql:8.0
+    container_name: mysql-slave1
+    env_file: ./.env
+    cap_add:
+      - all
+    volumes:
+      - ./slave1/my.cnf:/etc/mysql/my.cnf
+      - ./slave1/mysql:/docker-entrypoint-initdb.d
+      - ./slave1/data:/var/lib/mysql-files
+    networks:
+      local:
+        aliases:
+          - mysql
+    healthcheck:
+      test: "mysqladmin ping -h localhost"
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  mysql-slave2:
+    image: mysql:8.0
+    container_name: mysql-slave2
+    env_file: ./.env
+    cap_add:
+      - all
+    volumes:
+      - ./slave2/my.cnf:/etc/mysql/my.cnf
+      - ./slave2/mysql:/docker-entrypoint-initdb.d
+      - ./slave2/data:/var/lib/mysql-files
+    networks:
+      local:
+        aliases:
+          - mysql
+    healthcheck:
+      test: "mysqladmin ping -h localhost"
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  haproxy:
+    build:
+      context: ./.
+      dockerfile: Dockerfile
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "2999:2999"
+      - "3306:3306"
+    cap_add:
+      - all
+    volumes:
+      - ./haproxy.cfg:/etc/haproxy/haproxy.cfg
+    networks:
+      local:
+        aliases:
+          - mysql
+    depends_on:
+      mysql-master:
+        condition: service_healthy
+      mysql-slave1:
+        condition: service_healthy
+      mysql-slave2:
+        condition: service_healthy
 
   migrations:
     container_name: migrations
@@ -23,23 +92,32 @@ services:
     volumes:
       - ../../migrations:/migrations
     command:
-      [ "-path", "/migrations", "-database", "mysql://social:test@tcp(mysql:3306)/social", "up" ]
+      [ "-path", "/migrations", "-database", "mysql://social:test@tcp(haproxy:3306)/social", "up" ]
     networks:
       - local
     depends_on:
-      mysql:
-        condition: service_healthy
+      - haproxy
+
+  load-balancer:
+    container_name: nginx
+    image: moeryomenko/ngxjs
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - local
+    depends_on:
+      - social
 
   social:
-    container_name: social
     restart: always
     build:
       context: ../..
       dockerfile: Dockerfile
     env_file: ./.env
-    ports:
-      - 8080:8080
-      - 6060:6060
+    deploy:
+      replicas: 3
     networks:
       - local
     depends_on:
