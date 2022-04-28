@@ -47,7 +47,8 @@ type SessionConfig struct {
 // DBConfig represents database connection configuration.
 type DBConfig struct {
 	Host         string `envconfig:"HOST"`
-	Port         int    `envconfig:"PORT" default:"3306"`
+	MasterPort   int    `envconfig:"PORT" default:"3306"`
+	SlavePort    int    `envconfig:"PORT" default:"3307"`
 	Name         string `envconfig:"NAME"`
 	User         string `envconfig:"USER"`
 	Password     string `encconfig:"PASSWORD"`
@@ -58,7 +59,7 @@ type DBConfig struct {
 
 // Addr return database address for connect.
 func (cfg *DBConfig) Addr() string {
-	return fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	return fmt.Sprintf("%s:%d", cfg.Host, cfg.MasterPort)
 }
 
 // PoolConfig represents databese connection pool configuration.

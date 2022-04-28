@@ -18,17 +18,18 @@ var ErrNotFound = errors.New("not found")
 
 // Login incapsulates login/signup repository logic.
 type Login struct {
-	pool *mysql.Pool
+	writePool *mysql.Pool
+	readPool  *mysql.Pool
 }
 
 // NewLogin returns new instance of login repository.
-func NewLogin(conn *mysql.Pool) *Login {
-	return &Login{pool: conn}
+func NewLogin(writeConn, readConn *mysql.Pool) *Login {
+	return &Login{writePool: writeConn, readPool: readConn}
 }
 
 // Save saves signup credentials for login.
 func (r *Login) Save(ctx context.Context, login *domain.Login) error {
-	return transaction(ctx, r.pool, func(conn *client.Conn) error {
+	return transaction(ctx, r.writePool, func(conn *client.Conn) error {
 		_, err := conn.Execute(insertLoginQuery, uuidToBinary(login.UserID), login.Nickname, login.Password)
 		return err
 	})
@@ -38,7 +39,7 @@ func (r *Login) Save(ctx context.Context, login *domain.Login) error {
 func (r *Login) Get(ctx context.Context, nickname string) (*domain.Login, error) {
 	login := &domain.Login{Nickname: nickname}
 
-	err := query(ctx, r.pool, func(conn *client.Conn) error {
+	err := query(ctx, r.readPool, func(conn *client.Conn) error {
 		result, err := conn.Execute(selectLoginQuery, login.Nickname)
 		if err != nil {
 			return err

@@ -23,17 +23,18 @@ const (
 
 // Users incapsulates data access layer for user profiles.
 type Users struct {
-	pool *msql.Pool
+	writePool *msql.Pool
+	readPool  *msql.Pool
 }
 
 // NewUsers returns new instance of user repository.
-func NewUsers(pool *msql.Pool) *Users {
-	return &Users{pool: pool}
+func NewUsers(writePool, readPool *msql.Pool) *Users {
+	return &Users{writePool: writePool, readPool: readPool}
 }
 
 // Save saves user profile to repository.
 func (r *Users) Save(ctx context.Context, user *domain.User) error {
-	return transaction(ctx, r.pool, func(conn *client.Conn) (err error) {
+	return transaction(ctx, r.writePool, func(conn *client.Conn) (err error) {
 		_, err = conn.Execute(
 			insertProfileQueyr,
 			uuidToBinary(user.ID),
@@ -57,7 +58,7 @@ func (r *Users) List(ctx context.Context, opts ...PageOption) ([]domain.User, st
 
 	page := make([]domain.User, 0, queryBuilder.pageSize)
 	var nextToken string
-	err := query(ctx, r.pool, func(conn *client.Conn) error {
+	err := query(ctx, r.readPool, func(conn *client.Conn) error {
 		var result mysql.Result
 		defer result.Close()
 		err := conn.ExecuteSelectStreaming(listQuery, &result, func(row []mysql.FieldValue) error {

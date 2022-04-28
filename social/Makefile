@@ -7,7 +7,7 @@ test:
 	@go test -v ./...
 
 restore:
-	@gunzip < dumps/profiles.sql.gz | docker exec -i mysql /usr/bin/mysql -u social -ptest social
+	@gunzip < dumps/profiles.sql.gz | docker exec -i mysql-master /usr/bin/mysql -u social -ptest social
 
 test-user:
 	@curl -X POST http://${HOST}/api/v1/signup -d '{"nickname":"test", "password":"test"}'

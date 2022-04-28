@@ -29,14 +29,14 @@ func main() {
 	}
 	defer logger.Sync()
 
-	pool, err := repository.InitConnPool(context.Background(), cfg)
+	writePool, readPool, err := repository.InitConnPool(context.Background(), cfg)
 	if err != nil {
 		logger.With(zap.Error(err)).Fatal("could not init database connection pool")
 	}
 
-	login := services.NewLogin(cfg, repository.NewLogin(pool))
+	login := services.NewLogin(cfg, repository.NewLogin(writePool, readPool))
 
-	server := router.NewRouter(cfg, logger, login, repository.NewUsers(pool))
+	server := router.NewRouter(cfg, logger, login, repository.NewUsers(writePool, readPool))
 
 	healthController := healing.New(
 		healing.WithCheckPeriod(cfg.Health.Period),
@@ -44,7 +44,8 @@ func main() {
 		healing.WithReadyEndpoint(cfg.Health.ReadyEndpoint),
 	)
 
-	healthController.AddReadyChecker("mysql", pool.CheckReadinessProber)
+	healthController.AddReadyChecker("mysql_master", writePool.CheckReadinessProber)
+	healthController.AddReadyChecker("mysql_slave", readPool.CheckReadinessProber)
 
 	group, err := squad.NewSquad(context.Background(), squad.WithSignalHandler())
 	if err != nil {
