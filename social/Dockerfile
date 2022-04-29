@@ -33,7 +33,7 @@ COPY go.* ./
 # Also reusing previous go build cache by `--mount`.
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go mod graph | awk '$1 !~ /@/ { print $2 }' && xargs -r go get -x \
+    go mod graph | awk '$1 !~ /@/ { print $2 }' | xargs -r go get -x && \
     go list -m -f '{{ if not .Main }}{{ .Path }}/...@{{ .Version }}{{ end }}' all | tail -n +2 | \
     xargs go build -v -installsuffix cgo -i; echo done
 
