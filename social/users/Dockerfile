@@ -45,20 +45,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     mkdir bin && \
     go build -v -installsuffix cgo -o ./bin -ldflags "-linkmode external -extldflags -static -s -w" .
 
-FROM node:lts-alpine as front
-
-WORKDIR /app
-
-COPY frontend/package*.json .
-
-RUN --mount=type=cache,target=/app/node_modules \
-    npm install
-
-COPY frontend .
-
-RUN --mount=type=cache,target=/app/node_modules \
-    npm run build
-
 FROM scratch as final
 
 # Import the user and group files from the build stage.
@@ -67,8 +53,6 @@ COPY --from=base /user/group /user/passwd /etc/
 COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=build /src/bin /
-COPY --from=front /app/public /assets
-COPY migrations /migrations
 
 EXPOSE 8080
 USER 1000
