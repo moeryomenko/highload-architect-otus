@@ -18,12 +18,12 @@ func main() {
 		panic(err)
 	}
 
-	pool, err := repository.InitConnPool(context.Background(), cfg)
+	pool, _, err := repository.InitConnPool(context.Background(), cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	users := repository.NewUsers(pool)
+	users := repository.NewUsers(pool, nil)
 
 	for i := 0; i < 1_000_000; i++ {
 		err := users.Save(context.Background(), generateUser())

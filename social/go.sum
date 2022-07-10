@@ -117,10 +117,10 @@ github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJ
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
-github.com/moeryomenko/healing v1.3.1 h1:cFx9F73cn43UqiFPW3UJwb/Wv6JRixAcaJ0mLU7rau4=
-github.com/moeryomenko/healing v1.3.1/go.mod h1:d/oXBjA2A7pc1QCu4Lcof5/jWbka1IwgDw4WfNGTtGE=
-github.com/moeryomenko/squad v1.3.0 h1:dyqZscMLaOJB+0yZrJ37+63WJtuU3kp2qeYojaghDRs=
-github.com/moeryomenko/squad v1.3.0/go.mod h1:f311bSF0CuJAHbaygQh34XBkfG1e8BYFgdumqwa9CTQ=
+github.com/moeryomenko/healing v1.5.0 h1:LHafbBu675eDyForQbe8+8Wgrd/teXhC0z+tsPMw+/g=
+github.com/moeryomenko/healing v1.5.0/go.mod h1:93SHeqVZg9TRD7MqL1Io0qztMXkGBP2wpu4/d0lkNeE=
+github.com/moeryomenko/squad v1.5.0 h1:tiXKWuJ8vntuXEs+6qAouw+6gLcaqbbCgGNhmPMRggQ=
+github.com/moeryomenko/squad v1.5.0/go.mod h1:eIoulTPBLGex/CLtRxjGvSFfbdNfWzfnZ3RGGG7vQuc=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/image-spec v1.0.1 h1:JMemWkRwHx4Zj+fVxWoMCFm/8sYGGrUVojFA6h/TRcI=
 github.com/orlangure/gnomock v0.18.1 h1:xFMbPYhXa6IZsuLj5XX64rzLakeAkOzXYiSFZ3ztT/A=
