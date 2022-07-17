@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/moeryomenko/healing"
+	"github.com/moeryomenko/healing/checkers"
 	"github.com/moeryomenko/squad"
 	"go.uber.org/zap"
 
@@ -27,10 +28,7 @@ func main() {
 	}
 	defer zapLog.Sync()
 
-	writePool, readPool, err := repository.InitConnPool(context.Background(), cfg)
-	if err != nil {
-		zapLog.With(zap.Error(err)).Fatal("could not init database connection pool")
-	}
+	writePool, readPool := repository.InitConnPool(context.Background(), cfg)
 
 	login := services.NewLogin(cfg, repository.NewLogin(writePool, readPool))
 
@@ -40,10 +38,12 @@ func main() {
 		healing.WithCheckPeriod(cfg.Health.Period),
 		healing.WithHealthzEndpoint(cfg.Health.LiveEndpoint),
 		healing.WithReadyEndpoint(cfg.Health.ReadyEndpoint),
+		healing.WithMetrics(`/metrics`),
+		healing.WithPProf(),
 	)
 
-	healthController.AddReadyChecker("mysql_master", writePool.CheckReadinessProber)
-	healthController.AddReadyChecker("mysql_slave", readPool.CheckReadinessProber)
+	healthController.AddReadyChecker("mysql_master", checkers.MySQLReadinessProber(writePool, cfg.Database.Pool.MaxOpenConns))
+	healthController.AddReadyChecker("mysql_slaves", checkers.MySQLReadinessProber(readPool, cfg.Database.Pool.MaxOpenConns))
 
 	group, err := squad.New(squad.WithSignalHandler())
 	if err != nil {

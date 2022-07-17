@@ -17,7 +17,7 @@ tools:
 		github.com/deepmap/oapi-codegen/cmd/oapi-codegen
 
 load-tools:
-	@go install -v go.k6.io/xk6/cmd/xk6@v0.6.1
+	@go install -v go.k6.io/xk6/cmd/xk6@latest
 	@xk6 build --with github.com/szkiba/xk6-dashboard@latest
 
 load-test:

@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/go-mysql-org/go-mysql/mysql"
-	msql "github.com/moeryomenko/healing/decorators/mysql"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/domain"
 )
 
@@ -23,12 +22,12 @@ const (
 
 // Users incapsulates data access layer for user profiles.
 type Users struct {
-	writePool *msql.Pool
-	readPool  *msql.Pool
+	writePool *client.Pool
+	readPool  *client.Pool
 }
 
 // NewUsers returns new instance of user repository.
-func NewUsers(writePool, readPool *msql.Pool) *Users {
+func NewUsers(writePool, readPool *client.Pool) *Users {
 	return &Users{writePool: writePool, readPool: readPool}
 }
 

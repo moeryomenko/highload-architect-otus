@@ -2,40 +2,33 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/moeryomenko/healing/decorators/mysql"
-
+	"github.com/go-mysql-org/go-mysql/client"
 	"github.com/moeryomenko/highload-architect-otus/social/internal/config"
 )
 
 // InitConnPool initialize and configure db connection pool.
-func InitConnPool(ctx context.Context, cfg *config.Config) (write *mysql.Pool, read *mysql.Pool, err error) {
-	write, err = mysql.New(ctx, mysql.Config{
-		Host:     cfg.Database.Host,
-		Port:     uint16(cfg.Database.MasterPort),
-		User:     cfg.Database.User,
-		Password: cfg.Database.Password,
-		DBName:   cfg.Database.Name,
-	}, mysql.WithPoolConfig(mysql.PoolConfig{
-		MinAlive: cfg.Database.Pool.MaxOpenConns / 2,
-		MaxAlive: cfg.Database.Pool.MaxOpenConns,
-		MaxIdle:  cfg.Database.Pool.MaxIdleConns,
-	}))
-	if err != nil {
-		return nil, nil, err
-	}
+func InitConnPool(ctx context.Context, cfg *config.Config) (write *client.Pool, read *client.Pool) {
+	write = client.NewPool(
+		func(format string, args ...interface{}) {},
+		cfg.Database.Pool.MaxOpenConns,
+		cfg.Database.Pool.MaxOpenConns,
+		cfg.Database.Pool.MaxIdleConns,
+		fmt.Sprintf("%s:%d", cfg.Database.Host, cfg.Database.MasterPort),
+		cfg.Database.User, cfg.Database.Password,
+		cfg.Database.Name,
+	)
 
-	read, err = mysql.New(ctx, mysql.Config{
-		Host:     cfg.Database.Host,
-		Port:     uint16(cfg.Database.SlavePort),
-		User:     cfg.Database.User,
-		Password: cfg.Database.Password,
-		DBName:   cfg.Database.Name,
-	}, mysql.WithPoolConfig(mysql.PoolConfig{
-		MinAlive: cfg.Database.Pool.MaxOpenConns / 2,
-		MaxAlive: cfg.Database.Pool.MaxOpenConns,
-		MaxIdle:  cfg.Database.Pool.MaxIdleConns,
-	}))
+	read = client.NewPool(
+		func(format string, args ...interface{}) {},
+		cfg.Database.Pool.MaxOpenConns,
+		cfg.Database.Pool.MaxOpenConns,
+		cfg.Database.Pool.MaxIdleConns,
+		fmt.Sprintf("%s:%d", cfg.Database.Host, cfg.Database.SlavePort),
+		cfg.Database.User, cfg.Database.Password,
+		cfg.Database.Name,
+	)
 
-	return write, read, err
+	return write, read
 }
